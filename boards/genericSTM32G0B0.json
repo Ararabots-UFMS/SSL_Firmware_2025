@@ -1,0 +1,49 @@
+{
+  "build": {
+    "arduino": {
+      "variant_h": "variant_generic.h"
+    },
+    "core": "stm32",
+    "cpu": "cortex-m0plus",
+    "extra_flags": "-DSTM32G0 -DSTM32G0xx -DSTM32G0B0xx",
+    "f_cpu": "64000000L",
+    "framework_extra_flags": {
+      "arduino": "-D__CORTEX_SC=0 -DARDUINO_SKR_MINI_E3"
+    },
+    "mcu": "stm32g0b0ret6",
+    "product_line": "STM32G0B0xx",
+    "variant": "STM32G0xx/G0B0RET"
+  },
+  "debug": {
+    "default_tools": [
+      "stlink"
+    ],
+    "jlink_device": "STM32G0B0RE",
+    "onboard_tools": [
+      "stlink"
+    ],
+    "openocd_target": "stm32g0x",
+    "svd_path": "STM32G0B0.svd"
+  },
+  "frameworks": [
+    "arduino",
+    "stm32cube"
+  ],
+  "name": "SKR Mini E3",
+  "upload": {
+    "maximum_ram_size": 147456,
+    "maximum_size": 131072,
+    "protocol": "blackmagic",
+    "protocols": [
+      "blackmagic",
+      "cmsis-dap",
+      "dfu",
+      "jlink",
+      "serial",
+      "stlink",
+      "mbed"
+    ]
+  },
+  "url": "https://github.com/bigtreetech/BIGTREETECH-SKR-mini-E3/tree/master/hardware",
+  "vendor": "ST"
+}

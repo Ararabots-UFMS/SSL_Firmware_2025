@@ -18,18 +18,19 @@ const byte thisSlaveAddress[5] = {'R','x','A','A','A'};
 RadioManager radioManager(RADIO_CE, RADIO_CSN, RADIO_MOSI, RADIO_MISO, RADIO_SCK, RADIO_IRQ, thisSlaveAddress);
 
 
-BLDCMotor motor1 = BLDCMotor(11); 
+// BLDCMotor motor1 = BLDCMotor(11); 
 BLDCMotor motor2 = BLDCMotor(11); 
 BLDCMotor motor3 = BLDCMotor(11); 
-BLDCMotor motor4 = BLDCMotor(11); 
+// BLDCMotor motor4 = BLDCMotor(11); 
 
-BLDCDriver3PWM driver1 = BLDCDriver3PWM(PA0, PA1, PA3, PC1);
+// BLDCDriver3PWM driver1 = BLDCDriver3PWM(PA0, PA1, PA3, PC1);
 BLDCDriver3PWM driver2 = BLDCDriver3PWM(PA8, PA9, PA10, PA11);
 BLDCDriver3PWM driver3 = BLDCDriver3PWM(PB6, PB7, PB8, PB9);
-BLDCDriver3PWM driver4 = BLDCDriver3PWM(PC6, PC7, PC8, PC9);
+// BLDCDriver3PWM driver4 = BLDCDriver3PWM(PC6, PC7, PC8, PC9);
 
-// SPIClass sensor_spi1(PB5, PB4, PB3);
-// MagneticSensorSPI encoder = MagneticSensorSPI(PD6, 14, 0x3FFF);
+SPIClass sensor_spi1(PB5, PB4, PB3);
+MagneticSensorSPI encoder1 = MagneticSensorSPI(PD6, 14, 0x3FFF);
+MagneticSensorSPI encoder2 = MagneticSensorSPI(PD4, 14, 0x3FFF);
 
 #define ROBOT_RADIUS 0.072f  // Robot radius in meters
 #define WHEEL_RADIUS 0.034f  // Wheel radius in meters
@@ -46,7 +47,9 @@ float jacobian[4][3];
 
 void setup() {    
     pinMode(PE3, OUTPUT);
-    Serial.begin(9600);
+
+    encoder1.init(&sensor_spi1);
+    encoder2.init(&sensor_spi1);
     
     for (int i = 0; i < 4; i++) {
         jacobian[i][0] = sin(WHEEL_ANGLES[i]);
@@ -54,51 +57,61 @@ void setup() {
         jacobian[i][2] = ROBOT_RADIUS;
     }
     
-    radioManager.init();
+    // radioManager.init();
+        
     
-    driver1.voltage_power_supply = 18.5;
+    // driver1.voltage_power_supply = 18.5;
     driver2.voltage_power_supply = 18.5;
     driver3.voltage_power_supply = 18.5;
-    driver4.voltage_power_supply = 18.5;
+    // driver4.voltage_power_supply = 18.5;
     
-    driver1.voltage_limit = 8;
+    // driver1.voltage_limit = 12;
     driver2.voltage_limit = 8;
     driver3.voltage_limit = 8;
-    driver4.voltage_limit = 8;
+    // driver4.voltage_limit = 12;
     
-//     digitalWrite(PE3, HIGH);
-//     delay(1000);
-//         digitalWrite(PE3, LOW);
-//     encoder.init();
-//     motor2.linkSensor(&encoder);
-
-    driver1.init();
+    // driver1.init();
     driver2.init();
     driver3.init();
-    driver4.init();
+    // driver4.init();
+
+    motor2.linkSensor(&encoder1);
+    motor3.linkSensor(&encoder2);
     
-    motor1.linkDriver(&driver1);
+    // motor1.linkDriver(&driver1);
     motor2.linkDriver(&driver2);
     motor3.linkDriver(&driver3);
-    motor4.linkDriver(&driver4);
+    // motor4.linkDriver(&driver4);
     
-//     motor2.controller = MotionControlType::velocity;
+    motor2.controller = MotionControlType::velocity;
+    motor3.controller = MotionControlType::velocity;
     
-    motor1.controller = MotionControlType::velocity_openloop;
-    motor2.controller = MotionControlType::velocity_openloop;
-    motor3.controller = MotionControlType::velocity_openloop;
-    motor4.controller = MotionControlType::velocity_openloop;
+    // motor1.controller = MotionControlType::velocity_openloop;
+    // motor2.controller = MotionControlType::velocity_openloop;
+    // motor3.controller = MotionControlType::velocity_openloop;
+    // motor4.controller = MotionControlType::velocity_openloop;
+
+    motor2.PID_velocity.P = 0.8;
+    motor2.PID_velocity.I = 0;
+    motor2.PID_velocity.D = 0;
+    // motor2.PID_velocity.output_ramp = 1000;
+    motor2.LPF_velocity.Tf = 0.01;
+
+    motor3.PID_velocity.P = 0.8;
+    motor3.PID_velocity.I = 0;
+    motor3.PID_velocity.D = 0;
+    // motor3.PID_velocity.output_ramp = 1000;
+    motor3.LPF_velocity.Tf = 0.01;
     
-    motor1.init();
+    // motor1.init();
     motor2.init();
     motor3.init();
-    motor4.init();
+    // motor4.init();
     
-    motor1.initFOC();
+    // motor1.initFOC();
     motor2.initFOC();
     motor3.initFOC();
-    motor4.initFOC();
-    
+    // motor4.initFOC();   
 }
 
 float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
@@ -115,49 +128,51 @@ void calculateWheelSpeeds(float vx, float vy, float vt, float* result) {
 
 static uint8_t msg_count = 0;
 static uint8_t led_state = LOW;
+float target_velocity = 20.0;
 
 void loop() {
     RobotCommand cmd;
     
-    motor1.loopFOC();
-    motor1.move(wheel_speeds[0]);
+    // motor1.loopFOC();
+    // // motor1.move(wheel_speeds[0]);
+    // motor1.move(target_velocity);
 
     motor2.loopFOC();
-    motor2.move(wheel_speeds[1]);
+    // motor2.move(wheel_speeds[1]);
+    motor2.move(target_velocity);
 
     motor3.loopFOC();
-    motor3.move(wheel_speeds[2]);
+    // motor3.move(wheel_speeds[2]);
+    motor3.move(target_velocity);
 
-    motor4.loopFOC();
-    motor4.move(wheel_speeds[3]);
+    // motor4.loopFOC();
+    // // motor4.move(wheel_speeds[3]);
+    // motor4.move(target_velocity);
 
-    if(msg_count >= LED_COUNT_BLINK){
+    digitalWrite(LED_BUILTIN, HIGH);
+
+    // if(msg_count >= LED_COUNT_BLINK){
+
+    //     if(led_state == LOW){
+    //     led_state = HIGH;
+    //     }
+    //     else {
+    //     led_state = LOW;
+    //     }
+
+    //     digitalWrite(LED_BUILTIN, led_state);
+    //     msg_count = 0;
+    // }
+
+    // if (radioManager.checkAndReceive(cmd)) {
+    //     printCommand(cmd);
+
+    //     float vx = cmd.vx_linear / 1000.0f;  // Convert to appropriate units
+    //     float vy = cmd.vy_linear / 1000.0f;  // Convert to appropriate units
+    //     float vt = cmd.angular_speed / 1000.0f;  // Convert to appropriate units
         
-        // Serial.println(wheel_speeds[0]);
-        // Serial.println(wheel_speeds[1]);
-        // Serial.println(wheel_speeds[2]);
-        // Serial.println(wheel_speeds[3]);
+    //     calculateWheelSpeeds(vx, vy, vt, wheel_speeds);
 
-        if(led_state == LOW){
-        led_state = HIGH;
-        }
-        else {
-        led_state = LOW;
-        }
-
-        digitalWrite(LED_BUILTIN, led_state);
-        msg_count = 0;
-    }
-
-    if (radioManager.checkAndReceive(cmd)) {
-        printCommand(cmd);
-
-        float vx = cmd.vx_linear / 1000.0f;  // Convert to appropriate units
-        float vy = cmd.vy_linear / 1000.0f;  // Convert to appropriate units
-        float vt = cmd.angular_speed / 1000.0f;  // Convert to appropriate units
-        
-        calculateWheelSpeeds(vx, vy, vt, wheel_speeds);
-
-        msg_count++;
-    }
+    //     msg_count++;
+    // }
 }
