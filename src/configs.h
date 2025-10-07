@@ -63,5 +63,6 @@
 #define DEFAULT_KI      20.0f
 #define DEFAULT_KD      0.0f
 #define VEL_RAMP        1000.0f
+#define DEFAULT_LPF     0.01f //Low pass filter
 
 #define SLAVE_ADDR      {'R','x','A','A','A'}
