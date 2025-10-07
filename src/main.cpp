@@ -1,6 +1,7 @@
+#include "configs.h"
 #include "robot_command.h"
 #include "radio_manager.h"
-#include "configs.h"
+#include "inverse_kinematics.h"
 #include <SimpleFOC.h>
 #include "SimpleFOCDrivers.h"
 #include "encoders/as5047/MagneticSensorAS5047.h"
@@ -27,18 +28,12 @@ MagneticSensorAS5047 encoder2(ENCODER_CS2);
 MagneticSensorAS5047 encoder3(ENCODER_CS3);
 MagneticSensorAS5047 encoder4(ENCODER_CS4);
 
-const float WHEEL_ANGLES[4] = {
-    WHEEL1_ANG, 
-    WHEEL2_ANG, 
-    WHEEL3_ANG, 
-    WHEEL4_ANG
-};
-
-float jacobian[4][3];
+InverseKinematics ik;
 
 void setup() {    
     pinMode(LED_BUILTIN, OUTPUT);
-    Serial.begin(115200);
+    
+    radioManager.init();
     
     encoder1.init(&sensor_spi);
     encoder2.init(&sensor_spi);
@@ -50,13 +45,6 @@ void setup() {
     motor3.linkSensor(&encoder3);
     motor4.linkSensor(&encoder4);
     
-    for (int i = 0; i < 4; i++) {
-        jacobian[i][0] = sin(WHEEL_ANGLES[i]);
-        jacobian[i][1] = cos(WHEEL_ANGLES[i]);
-        jacobian[i][2] = ROBOT_RADIUS;
-    }
-    
-    radioManager.init();
     
     driver1.voltage_power_supply = SUPPLY_VOLTAGE;
     driver2.voltage_power_supply = SUPPLY_VOLTAGE;
@@ -120,16 +108,6 @@ void setup() {
 
 float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
 
-void calculateWheelSpeeds(float vx, float vy, float vt, float* result) {
-    for (int i = 0; i < 4; i++) {
-        result[i] = 0.0;
-        result[i] = result[i] + jacobian[i][0] * vx;
-        result[i] = result[i] + jacobian[i][1] * vy;
-        result[i] = result[i] + jacobian[i][2] * vt;
-        result[i] = (1.0 / WHEEL_RADIUS) * result[i];
-    }
-}
-
 static uint8_t msg_count = 0;
 static uint8_t led_state = LOW;
 
@@ -161,7 +139,7 @@ void loop() {
         float vy = cmd.vy_linear / 1000.0f;  // Convert to appropriate units
         float vt = cmd.angular_speed / 1000.0f;  // Convert to appropriate units
         
-        calculateWheelSpeeds(vx, vy, vt, wheel_speeds);
+        ik.calculateWheelSpeeds(vx, vy, vt, wheel_speeds);
 
         msg_count++;
     }
