@@ -144,20 +144,41 @@ static uint8_t msg_count = 0;
 static uint8_t led_state = LOW;
 float target_velocity = 20.0;
 
+short int noSignalMonitor = 0;
 void loop() {
     RobotCommand cmd;
-    
-    motor1.loopFOC();
-    motor1.move(wheel_speeds[0]);
+    if(!radioManager.getAvailable())
+        noSignalMonitor++;
+    else
+        noSignalMonitor=0;
+    if(noSignalMonitor > 10)
+    {
+        motor1.loopFOC();
+        motor1.move(wheel_speeds[0]);
 
-    motor2.loopFOC();
-    motor2.move(wheel_speeds[1]);
+        motor2.loopFOC();
+        motor2.move(wheel_speeds[1]);
 
-    motor3.loopFOC();
-    motor3.move(wheel_speeds[2]);
+        motor3.loopFOC();
+        motor3.move(wheel_speeds[2]);
 
-    motor4.loopFOC();
-    motor4.move(wheel_speeds[3]);
+        motor4.loopFOC();
+        motor4.move(wheel_speeds[3]);
+    }
+    else
+    {
+        motor1.loopFOC();
+        motor1.move(0);
+
+        motor2.loopFOC();
+        motor2.move(0);
+
+        motor3.loopFOC();
+        motor3.move(0);
+
+        motor4.loopFOC();
+        motor4.move(0);
+    }
 
     if(msg_count >= LED_COUNT_BLINK){
         

@@ -23,6 +23,7 @@ public:
     
     void init();
     bool checkAndReceive(RobotCommand& cmd);
+    bool getAvailable();
 };
 
 #endif // RADIO_MANAGER_H

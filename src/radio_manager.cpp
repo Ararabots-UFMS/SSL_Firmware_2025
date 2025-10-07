@@ -35,3 +35,8 @@ bool RadioManager::checkAndReceive(RobotCommand& cmd) {
     }
     return false;
 }
+
+bool RadioManager::getAvailable()
+{
+    return radio.available();
+}
