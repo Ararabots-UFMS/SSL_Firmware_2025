@@ -2,6 +2,8 @@
 #include "robot_command.h"
 #include "radio_manager.h"
 #include <SimpleFOC.h>
+#include "SimpleFOCDrivers.h"
+#include "encoders/as5047/MagneticSensorAS5047.h"
 
 #define LED_COUNT_BLINK 20
 
@@ -29,13 +31,11 @@ BLDCDriver3PWM driver3 = BLDCDriver3PWM(PB6, PB7, PB8, PB9);
 BLDCDriver3PWM driver4 = BLDCDriver3PWM(PC6, PC7, PC8, PC9);
 
 SPIClass sensor_spi1(PB5, PB4, PB3);
-MagneticSensorSPI encoder2 = MagneticSensorSPI(AS5047_SPI, PD4);
-MagneticSensorSPI encoder3 = MagneticSensorSPI(AS5047_SPI, PD6);
 
-// SPIClass sensor_spi2(PA7, PA6, PA5);
-MagneticSensorSPI encoder1 = MagneticSensorSPI(AS5047_SPI, PA2);
-MagneticSensorSPI encoder4 = MagneticSensorSPI(AS5047_SPI, PA4);
-
+MagneticSensorAS5047 encoder1(PD4);
+MagneticSensorAS5047 encoder2(PD6);
+MagneticSensorAS5047 encoder3(PA2);
+MagneticSensorAS5047 encoder4(PA4);
 
 #define ROBOT_RADIUS 0.072f  // Robot radius in meters
 #define WHEEL_RADIUS 0.034f  // Wheel radius in meters
