@@ -1,44 +1,31 @@
-#include <Arduino.h>
 #include "robot_command.h"
 #include "radio_manager.h"
+#include "configs.h"
 #include <SimpleFOC.h>
 #include "SimpleFOCDrivers.h"
 #include "encoders/as5047/MagneticSensorAS5047.h"
 
-#define LED_COUNT_BLINK 20
-
-#define RADIO_IRQ PD15
-#define RADIO_CE PB10
-#define RADIO_CSN PB11
-#define RADIO_MOSI PE14
-#define RADIO_MISO PE13
-#define RADIO_SCK PE12
-
 const byte thisSlaveAddress[5] = {'R','x','A','A','A'};
 
-
-RadioManager radioManager(RADIO_CE, RADIO_CSN, RADIO_MOSI, RADIO_MISO, RADIO_SCK, RADIO_IRQ, thisSlaveAddress);
-
+RadioManager radioManager(RADIO_CE, RADIO_CSN, RADIO_MOSI,
+                          RADIO_MISO, RADIO_SCK, RADIO_IRQ, thisSlaveAddress);
 
 BLDCMotor motor1 = BLDCMotor(11); 
 BLDCMotor motor2 = BLDCMotor(11); 
 BLDCMotor motor3 = BLDCMotor(11); 
 BLDCMotor motor4 = BLDCMotor(11); 
 
-BLDCDriver3PWM driver1 = BLDCDriver3PWM(PA0, PA1, PA3, PC3_C);
-BLDCDriver3PWM driver2 = BLDCDriver3PWM(PA8, PA9, PA10, PA11);
-BLDCDriver3PWM driver3 = BLDCDriver3PWM(PB6, PB7, PB8, PB9);
-BLDCDriver3PWM driver4 = BLDCDriver3PWM(PC6, PC7, PC8, PC9);
+BLDCDriver3PWM driver1 = BLDCDriver3PWM(PWM1_A, PWM1_B, PWM1_C, PWM1_EN);
+BLDCDriver3PWM driver2 = BLDCDriver3PWM(PWM2_A, PWM2_B, PWM3_C, PWM4_EN);
+BLDCDriver3PWM driver3 = BLDCDriver3PWM(PWM3_A, PWM3_B, PWM3_C, PWM4_EN);
+BLDCDriver3PWM driver4 = BLDCDriver3PWM(PWM4_A, PWM4_B, PWM3_C, PWM4_EN);
 
-SPIClass sensor_spi1(PB5, PB4, PB3);
+SPIClass sensor_spi(ENCODER_MOSI, ENCODER_MISO, ENCODER_SCK);
 
-MagneticSensorAS5047 encoder1(PD4);
-MagneticSensorAS5047 encoder2(PD6);
-MagneticSensorAS5047 encoder3(PA2);
-MagneticSensorAS5047 encoder4(PA4);
-
-#define ROBOT_RADIUS 0.072f  // Robot radius in meters
-#define WHEEL_RADIUS 0.034f  // Wheel radius in meters
+MagneticSensorAS5047 encoder1(ENCODER_CS1);
+MagneticSensorAS5047 encoder2(ENCODER_CS2);
+MagneticSensorAS5047 encoder3(ENCODER_CS3);
+MagneticSensorAS5047 encoder4(ENCODER_CS4);
 
 const float WHEEL_ANGLES[4] = {
     M_PI * (1.0 / 6.0), 
@@ -50,13 +37,13 @@ const float WHEEL_ANGLES[4] = {
 float jacobian[4][3];
 
 void setup() {    
-    pinMode(PE3, OUTPUT);
+    pinMode(LED_BUILTIN, OUTPUT);
     Serial.begin(115200);
     
-    encoder1.init(&sensor_spi1);
-    encoder2.init(&sensor_spi1);
-    encoder3.init(&sensor_spi1);
-    encoder4.init(&sensor_spi1);
+    encoder1.init(&sensor_spi);
+    encoder2.init(&sensor_spi);
+    encoder3.init(&sensor_spi);
+    encoder4.init(&sensor_spi);
 
     motor1.linkSensor(&encoder1);
     motor2.linkSensor(&encoder2);
@@ -125,7 +112,6 @@ void setup() {
     motor2.initFOC();
     motor3.initFOC();
     motor4.initFOC();
-    
 }
 
 float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
@@ -142,7 +128,6 @@ void calculateWheelSpeeds(float vx, float vy, float vt, float* result) {
 
 static uint8_t msg_count = 0;
 static uint8_t led_state = LOW;
-float target_velocity = 20.0;
 
 void loop() {
     RobotCommand cmd;
@@ -160,11 +145,6 @@ void loop() {
     motor4.move(wheel_speeds[3]);
 
     if(msg_count >= LED_COUNT_BLINK){
-        
-        // Serial.println(wheel_speeds[0]);
-        // Serial.println(wheel_speeds[1]);
-        // Serial.println(wheel_speeds[2]);
-        // Serial.println(wheel_speeds[3]);
 
         if(led_state == LOW){
         led_state = HIGH;
