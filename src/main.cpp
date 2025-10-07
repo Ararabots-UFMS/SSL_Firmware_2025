@@ -149,14 +149,7 @@ void loop() {
     motor4.move(wheel_speeds[3]);
 
     if(msg_count >= LED_COUNT_BLINK){
-
-        if(led_state == LOW){
-        led_state = HIGH;
-        }
-        else {
-        led_state = LOW;
-        }
-
+        led_state != led_state;
         digitalWrite(LED_BUILTIN, led_state);
         msg_count = 0;
     }
