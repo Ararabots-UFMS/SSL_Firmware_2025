@@ -66,3 +66,8 @@
 #define DEFAULT_LPF     0.01f //Low pass filter
 
 #define SLAVE_ADDR      {'R','x','A','A','A'}
+
+// -------------------------- MODE
+
+// Define DEBUG_MODE to enable Serial and motor debugs
+// #define DEBUG_MODE
