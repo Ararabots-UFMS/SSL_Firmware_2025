@@ -1,4 +1,5 @@
 #include "radio_manager.h"
+#include <SimpleFOC.h>
 
 RadioManager::RadioManager(uint8_t ce_pin, uint8_t csn_pin, 
                           uint8_t mosi_pin, uint8_t miso_pin, uint8_t sck_pin,
@@ -31,12 +32,26 @@ bool RadioManager::checkAndReceive(RobotCommand& cmd) {
         
         // Decode the received data
         cmd = decodeCommand(dataReceived);
+        noSignalMonitor = 0;
         return true;
     }
+    else
+        noSignalMonitor++;
     return false;
 }
 
-bool RadioManager::getAvailable()
+bool RadioManager::getSignal(float * wheels)
 {
-    return radio.available();
+    if(noSignalMonitor >= 10)
+    {
+        wheels[0] = 0;
+        wheels[1] = 0;
+        wheels[2] = 0;
+        wheels[3] = 0;
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
