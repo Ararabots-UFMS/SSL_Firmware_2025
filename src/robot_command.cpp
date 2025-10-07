@@ -42,10 +42,10 @@ RobotCommand decodeCommand(const char* buffer) {
 }
 
 void printCommand(const RobotCommand& cmd) {
-    // Serial.print("ID: "); Serial.println(cmd.id);
-    // Serial.print("VX Linear: "); Serial.println(cmd.vx_linear);
-    // Serial.print("VY Linear: "); Serial.println(cmd.vy_linear);
-    // Serial.print("Angular Speed: "); Serial.println(cmd.angular_speed);
-    // Serial.print("Angle: "); Serial.println(cmd.angle);
-    // Serial.print("Kick Front: "); Serial.println(cmd.kick_front ? "Yes" : "No");
+    Serial.print("ID: "); Serial.println(cmd.id);
+    Serial.print("VX Linear: "); Serial.println(cmd.vx_linear);
+    Serial.print("VY Linear: "); Serial.println(cmd.vy_linear);
+    Serial.print("Angular Speed: "); Serial.println(cmd.angular_speed);
+    Serial.print("Angle: "); Serial.println(cmd.angle);
+    Serial.print("Kick Front: "); Serial.println(cmd.kick_front ? "Yes" : "No");
 }
