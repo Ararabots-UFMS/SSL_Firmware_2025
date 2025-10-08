@@ -14,7 +14,8 @@ RadioManager radioManager(RADIO_CE, RADIO_CSN, RADIO_MOSI,
 BLDCMotor motor1 = BLDCMotor(MOTOR_PP); 
 BLDCMotor motor2 = BLDCMotor(MOTOR_PP); 
 BLDCMotor motor3 = BLDCMotor(MOTOR_PP); 
-BLDCMotor motor4 = BLDCMotor(MOTOR_PP); 
+BLDCMotor motor4 = BLDCMotor(MOTOR_PP);
+BLDCMotor motors[4]{BLDCMotor(MOTOR_PP)};
 
 BLDCDriver3PWM driver1 = BLDCDriver3PWM(PWM1_A, PWM1_B, PWM1_C, PWM1_EN);
 BLDCDriver3PWM driver2 = BLDCDriver3PWM(PWM2_A, PWM2_B, PWM3_C, PWM4_EN);
