@@ -45,7 +45,7 @@
 
 // -------------------------- CONFIG
 
-#define LED_COUNT_BLINK 20
+#define ROBOT_ID        0
 
 #define ROBOT_RADIUS    0.072f  // Robot radius in meters
 #define WHEEL_RADIUS    0.034f  // Wheel radius in meters
@@ -66,6 +66,8 @@
 #define DEFAULT_LPF     0.01f //Low pass filter
 
 #define SLAVE_ADDR      {'R','x','A','A','A'}
+
+#define LED_COUNT_BLINK 20
 
 // -------------------------- MODE
 
