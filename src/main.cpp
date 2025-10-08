@@ -40,7 +40,11 @@ MagneticSensorAS5047 encoders[4]
 
 InverseKinematics ik;
 
-void setup() {    
+float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
+static uint8_t msg_count = 0;
+static uint8_t led_state = LOW;
+
+void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     
     radioManager.init();
@@ -69,11 +73,6 @@ void setup() {
     }
 }
 
-float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
-
-static uint8_t msg_count = 0;
-static uint8_t led_state = LOW;
-
 void loop() {
     RobotCommand cmd;
     if(radioManager.getSignal(wheel_speeds))
@@ -92,14 +91,18 @@ void loop() {
     }
 
     if (radioManager.checkAndReceive(cmd)) {
-        printCommand(cmd);
-
-        float vx = cmd.vx_linear / 1000.0f;  // Convert to appropriate units
-        float vy = cmd.vy_linear / 1000.0f;  // Convert to appropriate units
-        float vt = cmd.angular_speed / 1000.0f;  // Convert to appropriate units
-        
-        ik.calculateWheelSpeeds(vx, vy, vt, wheel_speeds);
-
-        msg_count++;
+        if(cmd.id == ROBOT_ID){
+            #ifdef DEBUG_MODE
+                printCommand(cmd);
+            #endif
+    
+            float vx = cmd.vx_linear / 1000.0f;  // Convert to appropriate units
+            float vy = cmd.vy_linear / 1000.0f;  // Convert to appropriate units
+            float vt = cmd.angular_speed / 1000.0f;  // Convert to appropriate units
+            
+            ik.calculateWheelSpeeds(vx, vy, vt, wheel_speeds);
+    
+            msg_count++;
+        }
     }
 }
