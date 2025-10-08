@@ -15,7 +15,7 @@ private:
     unsigned int t_without_msg;
     const byte* address;
     uint8_t irq_pin;
-
+    short int noSignalMonitor = 0;
 public:
     RadioManager(uint8_t ce_pin, uint8_t csn_pin, 
                 uint8_t mosi_pin, uint8_t miso_pin, uint8_t sck_pin,
@@ -23,6 +23,7 @@ public:
     
     void init();
     bool checkAndReceive(RobotCommand& cmd);
+    bool getSignal(float * wheels);
 };
 
 #endif // RADIO_MANAGER_H
