@@ -146,16 +146,18 @@ void loop() {
     }
 
     if (radioManager.checkAndReceive(cmd)) {
-        #ifdef DEBUG_MODE
-            printCommand(cmd);
-        #endif
-
-        float vx = cmd.vx_linear / 1000.0f;  // Convert to appropriate units
-        float vy = cmd.vy_linear / 1000.0f;  // Convert to appropriate units
-        float vt = cmd.angular_speed / 1000.0f;  // Convert to appropriate units
-        
-        ik.calculateWheelSpeeds(vx, vy, vt, wheel_speeds);
-
-        msg_count++;
+        if(cmd.id == ROBOT_ID){
+            #ifdef DEBUG_MODE
+                printCommand(cmd);
+            #endif
+    
+            float vx = cmd.vx_linear / 1000.0f;  // Convert to appropriate units
+            float vy = cmd.vy_linear / 1000.0f;  // Convert to appropriate units
+            float vt = cmd.angular_speed / 1000.0f;  // Convert to appropriate units
+            
+            ik.calculateWheelSpeeds(vx, vy, vt, wheel_speeds);
+    
+            msg_count++;
+        }
     }
 }
