@@ -1,3 +1,6 @@
+#ifndef CONFIGS_H
+#define CONFIGS_H
+
 #include "math.h"
 
 // -------------------------- PINS
@@ -73,9 +76,11 @@
 
 #define SLAVE_ADDR      {'R','x','A','A','A'}
 
-#define LED_COUNT_BLINK 20
+#define MAX_TIMES_WITH_NO_MSG 10
 
 // -------------------------- MODE
 
 // Define DEBUG_MODE to enable Serial and motor debugs
 // #define DEBUG_MODE
+
+#endif
