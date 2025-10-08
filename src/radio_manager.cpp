@@ -1,3 +1,4 @@
+#include "configs.h"
 #include "radio_manager.h"
 #include <SimpleFOC.h>
 
@@ -42,7 +43,7 @@ bool RadioManager::checkAndReceive(RobotCommand& cmd) {
 
 bool RadioManager::getSignal(float * wheels)
 {
-    if(noSignalMonitor >= 10)
+    if(noSignalMonitor >= MAX_TIMES_WITH_NO_MSG)
     {
         wheels[0] = 0;
         wheels[1] = 0;
