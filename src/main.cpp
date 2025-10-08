@@ -50,10 +50,10 @@ void setup() {
     {
         encoders[i].init(&sensor_spi);
 
-        motors[i].linkSensor(&encoders[0]);
+        motors[i].linkSensor(&encoders[i]);
         
         drivers[i].voltage_power_supply = SUPPLY_VOLTAGE;
-        drivers[i].voltage_limit = SUPPLY_LIMIT;
+        drivers[i].voltage_limit        = SUPPLY_LIMIT;
         drivers[i].init();
         
         motors[i].linkDriver(&drivers[i]);
