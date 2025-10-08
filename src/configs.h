@@ -2,6 +2,12 @@
 
 // -------------------------- PINS
 
+// KICK
+#define KICK_PIN 1
+#define VOLTAGE_SENSOR_PIN 2
+#define INFRA_PIN 3
+#define KICK_VOLTAGE 220
+
 // RADIO SPI
 #define RADIO_IRQ       PD15
 #define RADIO_CE        PB10

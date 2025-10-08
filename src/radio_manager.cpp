@@ -44,10 +44,10 @@ bool RadioManager::getSignal(float * wheels)
 {
     if(noSignalMonitor >= 10)
     {
-        wheels[0] = 0;
-        wheels[1] = 0;
-        wheels[2] = 0;
-        wheels[3] = 0;
+        for(int i = 0; i < 4; i++)
+        {
+            wheels[i] = 0;
+        }
         return false;
     }
     else

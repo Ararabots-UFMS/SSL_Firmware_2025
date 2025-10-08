@@ -5,6 +5,7 @@
 #include <SimpleFOC.h>
 #include "SimpleFOCDrivers.h"
 #include "encoders/as5047/MagneticSensorAS5047.h"
+#include "kick.h"
 
 const byte thisSlaveAddress[5] = SLAVE_ADDR;
 
@@ -40,9 +41,11 @@ MagneticSensorAS5047 encoders[4]
 
 InverseKinematics ik;
 
+Kick kick(KICK_PIN, VOLTAGE_SENSOR_PIN, INFRA_PIN, KICK_VOLTAGE);
+
 float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
 
-void setup() {
+void setup() {    
     pinMode(LED_BUILTIN, OUTPUT);
     
     radioManager.init();
@@ -76,6 +79,17 @@ void loop() {
 
     if(!radioManager.getSignal(wheel_speeds)){
         digitalWrite(LED_BUILTIN, LOW);
+    if(cmd.kick_front)
+    {
+        kick.makeKick();
+    }
+    if(radioManager.getSignal(wheel_speeds))
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            motors[i].loopFOC();
+            motors[i].move(wheel_speeds[i]);
+        }
     }
 
     for(int i = 0; i < sizeof(motors); i++){
