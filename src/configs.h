@@ -11,13 +11,13 @@
 #define RADIO_SCK       PE12
 
 // ENCODER SPI
-#define ENCODER_MOSI    PD15
-#define ENCODER_MISO    PB10
-#define ENCODER_SCK     PB11
-#define ENCODER_CS1     PE14
-#define ENCODER_CS2     PE13
-#define ENCODER_CS3     PE12
-#define ENCODER_CS4     PE12
+#define ENCODER_MOSI    PB5
+#define ENCODER_MISO    PB4
+#define ENCODER_SCK     PB3
+#define ENCODER_CS1     PD4
+#define ENCODER_CS2     PD6
+#define ENCODER_CS3     PA2
+#define ENCODER_CS4     PA4
 
 // MOTOR 1 PWM
 #define PWM1_A          PA0
