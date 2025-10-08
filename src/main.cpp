@@ -30,6 +30,10 @@ MagneticSensorAS5047 encoder4(ENCODER_CS4);
 
 InverseKinematics ik;
 
+float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
+static uint8_t msg_count = 0;
+static uint8_t led_state = LOW;
+
 void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     
@@ -118,11 +122,6 @@ void setup() {
     #endif
     _delay(100);
 }
-
-float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
-
-static uint8_t msg_count = 0;
-static uint8_t led_state = LOW;
 
 void loop() {
     RobotCommand cmd;
