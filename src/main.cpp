@@ -31,11 +31,11 @@ MagneticSensorAS5047 encoder4(ENCODER_CS4);
 
 InverseKinematics ik;
 
-void setup() {    
+void setup() {
     pinMode(LED_BUILTIN, OUTPUT);
     
     radioManager.init();
-    
+
     encoder1.init(&sensor_spi);
     encoder2.init(&sensor_spi);
     encoder3.init(&sensor_spi);
@@ -45,7 +45,6 @@ void setup() {
     motor2.linkSensor(&encoder2);
     motor3.linkSensor(&encoder3);
     motor4.linkSensor(&encoder4);
-    
     
     driver1.voltage_power_supply = SUPPLY_VOLTAGE;
     driver2.voltage_power_supply = SUPPLY_VOLTAGE;
@@ -95,6 +94,15 @@ void setup() {
     motor4.PID_velocity.D           = DEFAULT_KD;
     motor4.PID_velocity.output_ramp = VEL_RAMP;
     motor4.LPF_velocity.Tf          = DEFAULT_LPF;
+
+    #ifdef DEBUG_MODE
+        Serial.begin(115200);
+
+        motor.useMonitoring(Serial);
+        motor2.useMonitoring(Serial);
+        motor3.useMonitoring(Serial);
+        motor4.useMonitoring(Serial);
+    #endif
     
     motor1.init();
     motor2.init();
@@ -105,6 +113,11 @@ void setup() {
     motor2.initFOC();
     motor3.initFOC();
     motor4.initFOC();
+
+    #ifdef DEBUG_MODE
+        Serial.println("MOTOR IS READY");
+    #endif
+    _delay(100);
 }
 
 float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
@@ -136,7 +149,9 @@ void loop() {
     }
 
     if (radioManager.checkAndReceive(cmd)) {
-        printCommand(cmd);
+        #ifdef DEBUG_MODE
+            printCommand(cmd);
+        #endif
 
         float vx = cmd.vx_linear / 1000.0f;  // Convert to appropriate units
         float vy = cmd.vy_linear / 1000.0f;  // Convert to appropriate units
