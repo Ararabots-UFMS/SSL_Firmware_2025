@@ -22,7 +22,8 @@ void RadioManager::init() {
     radio.begin(&radio_spi);
     radio.setDataRate(RF24_2MBPS);
     radio.openReadingPipe(1, address);
-    radio.setChannel(120);
+    radio.setAutoAck(false);
+    radio.setChannel(111);
     radio.startListening();
 }
 
