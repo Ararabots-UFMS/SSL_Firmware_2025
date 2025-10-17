@@ -5,20 +5,18 @@
 #include "SimpleFOCDrivers.h"
 #include "encoders/as5047/MagneticSensorAS5047.h"
 
-#define LED_COUNT_BLINK 20
-
-#define RADIO_IRQ PD15
-#define RADIO_CE PB10
-#define RADIO_CSN PB11
+#define RADIO_IRQ  PD15
+#define RADIO_CE   PB10
+#define RADIO_CSN  PB11
 #define RADIO_MOSI PE14
 #define RADIO_MISO PE13
-#define RADIO_SCK PE12
+#define RADIO_SCK  PE12
 
-const byte thisSlaveAddress[5] = {'R','x','A','A','A'};
+#define ROBOT_ID 1
 
+const byte thisSlaveAddress[5] = {'A','R','A','R','A'};
 
 RadioManager radioManager(RADIO_CE, RADIO_CSN, RADIO_MOSI, RADIO_MISO, RADIO_SCK, RADIO_IRQ, thisSlaveAddress);
-
 
 BLDCMotor motor1 = BLDCMotor(11); 
 BLDCMotor motor2 = BLDCMotor(11); 
@@ -26,16 +24,16 @@ BLDCMotor motor3 = BLDCMotor(11);
 BLDCMotor motor4 = BLDCMotor(11); 
 
 BLDCDriver3PWM driver1 = BLDCDriver3PWM(PA0, PA1, PA3, PC3_C);
-BLDCDriver3PWM driver2 = BLDCDriver3PWM(PA8, PA9, PA10, PA11);
-BLDCDriver3PWM driver3 = BLDCDriver3PWM(PB6, PB7, PB8, PB9);
-BLDCDriver3PWM driver4 = BLDCDriver3PWM(PC6, PC7, PC8, PC9);
+BLDCDriver3PWM driver2 = BLDCDriver3PWM(PC6, PC7, PC8, PC9);
+BLDCDriver3PWM driver3 = BLDCDriver3PWM(PA8, PA9, PA10, PA11);
+BLDCDriver3PWM driver4 = BLDCDriver3PWM(PB6, PB7, PB8, PB9);
 
-SPIClass sensor_spi1(PB5, PB4, PB3);
+SPIClass sensor_spi1(PA7, PA6, PA5);
 
-MagneticSensorAS5047 encoder1(PD4);
-MagneticSensorAS5047 encoder2(PD6);
-MagneticSensorAS5047 encoder3(PA2);
-MagneticSensorAS5047 encoder4(PA4);
+MagneticSensorAS5047 encoder1(PA2);
+MagneticSensorAS5047 encoder2(PA4);
+MagneticSensorAS5047 encoder3(PD4);
+MagneticSensorAS5047 encoder4(PD6);
 
 #define ROBOT_RADIUS 0.072f  // Robot radius in meters
 #define WHEEL_RADIUS 0.034f  // Wheel radius in meters
@@ -51,7 +49,7 @@ float jacobian[4][3];
 
 void setup() {    
     pinMode(PE3, OUTPUT);
-    Serial.begin(115200);
+    pinMode(PC10, INPUT);
     
     encoder1.init(&sensor_spi1);
     encoder2.init(&sensor_spi1);
@@ -76,10 +74,10 @@ void setup() {
     driver3.voltage_power_supply = 18.5;
     driver4.voltage_power_supply = 18.5;
     
-    driver1.voltage_limit = 12;
-    driver2.voltage_limit = 12;
-    driver3.voltage_limit = 12;
-    driver4.voltage_limit = 12;
+    driver1.voltage_limit = 16;
+    driver2.voltage_limit = 16;
+    driver3.voltage_limit = 16;
+    driver4.voltage_limit = 16;
 
     driver1.init();
     driver2.init();
@@ -97,24 +95,28 @@ void setup() {
     motor4.controller = MotionControlType::velocity;
 
     motor1.PID_velocity.P = 0.2f;
-    motor1.PID_velocity.I = 20;
+    motor1.PID_velocity.I = 20.0f;
     motor1.PID_velocity.D = 0;
     motor1.PID_velocity.output_ramp = 1000;
+    motor1.LPF_velocity.Tf = 0.01;
 
     motor2.PID_velocity.P = 0.2f;
-    motor2.PID_velocity.I = 20;
+    motor2.PID_velocity.I = 20.0f;
     motor2.PID_velocity.D = 0;
     motor2.PID_velocity.output_ramp = 1000;
+    motor2.LPF_velocity.Tf = 0.01;
 
     motor3.PID_velocity.P = 0.2f;
-    motor3.PID_velocity.I = 20;
+    motor3.PID_velocity.I = 20.0f;
     motor3.PID_velocity.D = 0;
     motor3.PID_velocity.output_ramp = 1000;
+    motor3.LPF_velocity.Tf = 0.01;
 
     motor4.PID_velocity.P = 0.2f;
-    motor4.PID_velocity.I = 20;
+    motor4.PID_velocity.I = 20.0f;
     motor4.PID_velocity.D = 0;
     motor4.PID_velocity.output_ramp = 1000;
+    motor4.LPF_velocity.Tf = 0.01;
     
     motor1.init();
     motor2.init();
@@ -140,9 +142,7 @@ void calculateWheelSpeeds(float vx, float vy, float vt, float* result) {
     }
 }
 
-static uint8_t msg_count = 0;
-static uint8_t led_state = LOW;
-float target_velocity = 20.0;
+static uint32_t nmsg_count = 0;
 
 void loop() {
     RobotCommand cmd;
@@ -159,33 +159,44 @@ void loop() {
     motor4.loopFOC();
     motor4.move(wheel_speeds[3]);
 
-    if(msg_count >= LED_COUNT_BLINK){
-        
-        // Serial.println(wheel_speeds[0]);
-        // Serial.println(wheel_speeds[1]);
-        // Serial.println(wheel_speeds[2]);
-        // Serial.println(wheel_speeds[3]);
-
-        if(led_state == LOW){
-        led_state = HIGH;
-        }
-        else {
-        led_state = LOW;
-        }
-
-        digitalWrite(LED_BUILTIN, led_state);
-        msg_count = 0;
+    if(nmsg_count >= 2000){
+        wheel_speeds[0] = 0.0;
+        wheel_speeds[1] = 0.0;
+        wheel_speeds[2] = 0.0;
+        wheel_speeds[3] = 0.0;
+        nmsg_count = 0;
+        digitalWrite(LED_BUILTIN, LOW);
     }
 
     if (radioManager.checkAndReceive(cmd)) {
-        printCommand(cmd);
+        if (cmd.id == ROBOT_ID){
+            digitalWrite(LED_BUILTIN, HIGH);
+            printCommand(cmd);
+    
+            float vx_world = cmd.vx_linear / 1000.0f;
+            float vy_world = cmd.vy_linear / 1000.0f;
+            float vt = cmd.angular_speed / 1000.0f;
+            float robot_angle = cmd.angle / 1000.0f;
+            
+            // Transform world velocities to robot frame
+            float cos_a = cos(robot_angle);
+            float sin_a = sin(robot_angle);
+            float vx_robot = vx_world * cos_a + vy_world * sin_a;
+            float vy_robot = -vx_world * sin_a + vy_world * cos_a;
+            
+            calculateWheelSpeeds(vx_robot, vy_robot, vt, wheel_speeds);
 
-        float vx = cmd.vx_linear / 1000.0f;  // Convert to appropriate units
-        float vy = cmd.vy_linear / 1000.0f;  // Convert to appropriate units
-        float vt = cmd.angular_speed / 1000.0f;  // Convert to appropriate units
-        
-        calculateWheelSpeeds(vx, vy, vt, wheel_speeds);
-
-        msg_count++;
+            if(cmd.kick_front == true){
+                if(digitalRead(PC10) == LOW){
+                    digitalWrite(LED_BUILTIN, LOW);
+                }
+            }
+        }
+        else{
+            nmsg_count++;
+        }
+    }
+    else{
+        nmsg_count++;
     }
 }
