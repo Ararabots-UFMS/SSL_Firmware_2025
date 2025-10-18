@@ -12,7 +12,7 @@
 #define RADIO_MISO PE13
 #define RADIO_SCK  PE12
 
-#define ROBOT_ID 1
+#define ROBOT_ID 2
 
 const byte thisSlaveAddress[5] = {'A','R','A','R','A'};
 
@@ -96,27 +96,27 @@ void setup() {
 
     motor1.PID_velocity.P = 0.2f;
     motor1.PID_velocity.I = 20.0f;
-    motor1.PID_velocity.D = 0;
-    motor1.PID_velocity.output_ramp = 1000;
-    motor1.LPF_velocity.Tf = 0.01;
+    motor1.PID_velocity.D = 0.0f;
+    motor1.PID_velocity.output_ramp = 1000.0f;
+    motor1.LPF_velocity.Tf = 0.0f;
 
     motor2.PID_velocity.P = 0.2f;
     motor2.PID_velocity.I = 20.0f;
-    motor2.PID_velocity.D = 0;
-    motor2.PID_velocity.output_ramp = 1000;
-    motor2.LPF_velocity.Tf = 0.01;
+    motor2.PID_velocity.D = 0.0f;
+    motor2.PID_velocity.output_ramp = 1000.0f;
+    motor2.LPF_velocity.Tf = 0.0f;
 
     motor3.PID_velocity.P = 0.2f;
     motor3.PID_velocity.I = 20.0f;
-    motor3.PID_velocity.D = 0;
-    motor3.PID_velocity.output_ramp = 1000;
-    motor3.LPF_velocity.Tf = 0.01;
+    motor3.PID_velocity.D = 0.0f;
+    motor3.PID_velocity.output_ramp = 1000.0f;
+    motor3.LPF_velocity.Tf = 0.0f;
 
     motor4.PID_velocity.P = 0.2f;
     motor4.PID_velocity.I = 20.0f;
-    motor4.PID_velocity.D = 0;
-    motor4.PID_velocity.output_ramp = 1000;
-    motor4.LPF_velocity.Tf = 0.01;
+    motor4.PID_velocity.D = 0.0f;
+    motor4.PID_velocity.output_ramp = 1000.0f;
+    motor4.LPF_velocity.Tf = 0.0f;
     
     motor1.init();
     motor2.init();
@@ -133,13 +133,10 @@ void setup() {
 float wheel_speeds[4] = {0.0, 0.0, 0.0, 0.0};
 
 void calculateWheelSpeeds(float vx, float vy, float vt, float* result) {
-    for (int i = 0; i < 4; i++) {
-        result[i] = 0.0;
-        result[i] = result[i] + jacobian[i][0] * vx;
-        result[i] = result[i] + jacobian[i][1] * vy;
-        result[i] = result[i] + jacobian[i][2] * vt;
-        result[i] = (1.0 / WHEEL_RADIUS) * result[i];
-    }
+    result[0] = (2 * ROBOT_RADIUS * vt - (sqrt(3) * vx) + vy)/(2 * WHEEL_RADIUS);
+    result[1] = (sqrt(2) * ROBOT_RADIUS * vt - vx - vy)/(sqrt(2) * WHEEL_RADIUS);
+    result[2] = (sqrt(2) * ROBOT_RADIUS * vt + vx - vy)/(sqrt(2) * WHEEL_RADIUS);
+    result[3] = (2 * ROBOT_RADIUS * vt + (sqrt(3) * vx) + vy)/(2 * WHEEL_RADIUS);
 }
 
 static uint32_t nmsg_count = 0;
@@ -176,15 +173,8 @@ void loop() {
             float vx_world = cmd.vx_linear / 1000.0f;
             float vy_world = cmd.vy_linear / 1000.0f;
             float vt = cmd.angular_speed / 1000.0f;
-            float robot_angle = cmd.angle / 1000.0f;
             
-            // Transform world velocities to robot frame
-            float cos_a = cos(robot_angle);
-            float sin_a = sin(robot_angle);
-            float vx_robot = vx_world * cos_a + vy_world * sin_a;
-            float vy_robot = -vx_world * sin_a + vy_world * cos_a;
-            
-            calculateWheelSpeeds(vx_robot, vy_robot, vt, wheel_speeds);
+            calculateWheelSpeeds(vx_world, vy_world, vt, wheel_speeds);
 
             if(cmd.kick_front == true){
                 if(digitalRead(PC10) == LOW){
