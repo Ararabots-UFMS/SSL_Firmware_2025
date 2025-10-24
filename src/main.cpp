@@ -12,7 +12,7 @@
 #define RADIO_MISO PE13
 #define RADIO_SCK  PE12
 
-#define ROBOT_ID 2
+#define ROBOT_ID 0
 
 const byte thisSlaveAddress[5] = {'A','R','A','R','A'};
 
